@@ -344,7 +344,10 @@ async def push_voucher(
         "date_used": invoice.get("date"),
         "date_preview": preview,
     })
-    return {"ok": True, "tally_voucher_number": voucher.tally_voucher_number}
+    res = {"ok": True, "tally_voucher_number": voucher.tally_voucher_number}
+    db.expire_all()
+    return res
+
 
 
 def _remove_already_existing(db: Session, company_id: uuid.UUID, missing: dict) -> dict:
@@ -423,4 +426,7 @@ def _fail(db: Session, voucher: Voucher, actor_id: uuid.UUID,
     db.commit()
     write_audit(db, actor_id, "voucher.push_failed", "voucher", voucher.id,
                 {"stage": stage, "errors": errors})
-    return {"ok": False, "stage": stage, "errors": errors}
+    res = {"ok": True, "tally_voucher_number": voucher.tally_voucher_number}
+    db.expire_all()
+    return res
+
